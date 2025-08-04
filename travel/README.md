@@ -10,15 +10,19 @@ planning requests.
 Each of these agents could be implemented in a deterministic way or with help of
 an LLM.
 
+A formal description of the scenario, which leans in great parts on the [CNCF
+xRegistry](xregistry.io) metadata framework for endpoints, messages, and
+schemas, resides at [travel-topology.json](travel-topology.json)
+
 ## Agent Architecture
 
-- **TravelPlannerService**: Orchestrator that receives requests and coordinates
+- **[TravelPlannerService](cs/Agents/TravelPlannerService.cs)**: Orchestrator that receives requests and coordinates
   specialist agents
-- **AirTravelAgent**: Handles flight search requests and refinements
-- **TrainTravelAgent**: Processes rail travel queries
-- **RoadTravelAgent**: Manages bus and road travel options
-- **AccommodationAgent**: Handles lodging requests
-- **RentalCarAgent**: Processes vehicle rental requests
+- **[AirTravelAgent](cs/Agents/AirTravelAgent.cs)**: Handles flight search requests and refinements
+- **[TrainTravelAgent](cs/Agents/TrainTravelAgent.cs)**: Processes rail travel queries
+- **[RoadTravelAgent](cs/Agents/RoadTravelAgent.cs)**: Manages bus and road travel options
+- **[AccommodationAgent](cs/Agents/AccommodationAgent.cs)**: Handles lodging requests
+- **[RentalCarAgent](cs/Agents/RentalCarAgent.cs)**: Processes vehicle rental requests
 
 ## AMQP Message Flow
 
@@ -163,34 +167,46 @@ sequenceDiagram
 
 **Request Messages**:
 
-- `travel.requests` → `TravelRequest(TripId, Origin, Destination, Dates,
-  Preferences, Budget)`
-- `air.travel` → `FlightSearchRequest(TripId, Origin, Destination, DepartDate,
-  ReturnDate, Passengers)`
-- `train.travel` → `TrainSearchRequest(TripId, Origin, Destination, DepartDate,
-  ReturnDate, Passengers)`
-- `road.travel` → `RoadTravelRequest(TripId, Origin, Destination, DepartDate,
-  ReturnDate, TravelType)`
-- `accommodations` → `AccommodationRequest(TripId, Location, CheckIn, CheckOut,
-  Guests, Preferences)`
-- `rental.cars` → `RentalCarRequest(TripId, Location, PickupDate, ReturnDate,
-  VehicleType)`
+- `travel.requests` → CloudEvent type: `com.contoso.travel.TravelRequest`
+  - Data: `TravelRequest(TripId, CustomerId, Origin, Destination, Dates, Preferences, Budget, CustomerEmail)`
+- `air.travel` → CloudEvent type: `com.contoso.travel.FlightSearchRequest`
+  - Data: `FlightSearchRequest(TripId, Origin, Destination, DepartDate, ReturnDate, Passengers)`
+- `train.travel` → CloudEvent type: `com.contoso.travel.TrainSearchRequest`
+  - Data: `TrainSearchRequest(TripId, Origin, Destination, DepartDate, ReturnDate, Passengers)`
+- `road.travel` → CloudEvent type: `com.contoso.travel.RoadTravelRequest`
+  - Data: `RoadTravelRequest(TripId, Origin, Destination, DepartDate, ReturnDate, TravelType)`
+- `accommodations` → CloudEvent type: `com.contoso.travel.AccommodationRequest`
+  - Data: `AccommodationRequest(TripId, Location, CheckIn, CheckOut, Guests, Preferences)`
+- `rental.cars` → CloudEvent type: `com.contoso.travel.RentalCarRequest`
+  - Data: `RentalCarRequest(TripId, Location, PickupDate, ReturnDate, VehicleType)`
 
 **Response Messages**:
 
-- `travel.proposals` → `TravelProposal(TripId, AgentType, Options[],
-  EstimatedCost, Confidence)`
+- `travel.proposals` → CloudEvent type: `com.contoso.travel.TravelProposal`
+  - Data: `TravelProposal(TripId, AgentType, AgentId, Options[], EstimatedCost, Confidence)`
 
 **Refinement Messages**:
 
-- `air.refine` → `RefinementRequest(TripId, AgentType, FeedbackType, Feedback)`
-- `train.refine` → `RefinementRequest(TripId, AgentType, FeedbackType,
-  Feedback)`
-- `road.refine` → `RefinementRequest(TripId, AgentType, FeedbackType, Feedback)`
-- `accommodation.refine` → `RefinementRequest(TripId, AgentType, FeedbackType,
-  Feedback)`
-- `rentalcar.refine` → `RefinementRequest(TripId, AgentType, FeedbackType,
-  Feedback)`
+- `air.refine` → CloudEvent type: `com.contoso.travel.RefinementRequest`
+  - Data: `RefinementRequest(TripId, TargetAgentType, OriginalProposalId, FeedbackType, Feedback, Priority, RequestedBy)`
+- `train.refine` → CloudEvent type: `com.contoso.travel.RefinementRequest`
+  - Data: `RefinementRequest(TripId, TargetAgentType, OriginalProposalId, FeedbackType, Feedback, Priority, RequestedBy)`
+- `road.refine` → CloudEvent type: `com.contoso.travel.RefinementRequest`
+  - Data: `RefinementRequest(TripId, TargetAgentType, OriginalProposalId, FeedbackType, Feedback, Priority, RequestedBy)`
+- `accommodation.refine` → CloudEvent type: `com.contoso.travel.RefinementRequest`
+  - Data: `RefinementRequest(TripId, TargetAgentType, OriginalProposalId, FeedbackType, Feedback, Priority, RequestedBy)`
+- `rentalcar.refine` → CloudEvent type: `com.contoso.travel.RefinementRequest`
+  - Data: `RefinementRequest(TripId, TargetAgentType, OriginalProposalId, FeedbackType, Feedback, Priority, RequestedBy)`
+
+**Event Messages**:
+
+- `travel.events` → CloudEvent type: `com.contoso.travel.TravelEvent`
+  - Data: `TravelEvent(TripId, EventType, AgentType, AgentId, EventData, CorrelationId, ParentEventId)`
+
+**Notification Messages**:
+
+- `travel.notifications` → CloudEvent type: `com.contoso.travel.TravelNotification`
+  - Data: `TravelNotification(TripId, CustomerId, CustomerEmail, NotificationType, MessageType, Subject, Content, Priority, TemplateId)`
 
 ## Technical Features
 
