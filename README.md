@@ -55,7 +55,6 @@ The scenarios demonstrate various asynchronous messaging patterns:
 
 ## Technology Stack
 
-- **Protocol**: Model Context Protocol (MCP) for agent communication
 - **Messaging**: AMQP 1.0 for reliable asynchronous message delivery
 - **Events**: CloudEvents specification for standardized event formatting
 - **Orchestration**: Message-driven coordination between agents
