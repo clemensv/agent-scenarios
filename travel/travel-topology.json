@@ -1,0 +1,2174 @@
+{
+    "$schema": "https://cloudevents.io/schemas/registry",
+    "specversion": "1.0-rc1",
+    "id": "urn:uuid:travel-planning-registry",
+    "topologygroups": {
+        "Travel.Planning": {
+            "topologies": {
+                "travel-planning-topology": {
+                    "id": "urn:uuid:travel-planning-topology",
+                    "metadata": {
+                        "name": "TravelPlanningTopology",
+                        "description": "AMQP 1.0 messaging topology for AI-powered travel planning system with proposal-refinement pattern",
+                        "version": "1.0.0",
+                        "author": "Travel Platform Team",
+                        "tags": [
+                            "travel",
+                            "ai-agents",
+                            "proposal-refinement",
+                            "microservices"
+                        ]
+                    },
+                    "nodes": {
+                        "travel.requests": {
+                            "type": "Queue",
+                            "description": "Initial travel planning requests from customers"
+                        },
+                        "travel.proposals": {
+                            "type": "Queue",
+                            "description": "Travel proposals from expert agents"
+                        },
+                        "air.travel": {
+                            "type": "Queue",
+                            "description": "Flight search requests for air travel agent"
+                        },
+                        "air.refine": {
+                            "type": "Queue",
+                            "description": "Refinement requests for air travel agent"
+                        },
+                        "train.travel": {
+                            "type": "Queue",
+                            "description": "Train search requests for train travel agent"
+                        },
+                        "train.refine": {
+                            "type": "Queue",
+                            "description": "Refinement requests for train travel agent"
+                        },
+                        "road.travel": {
+                            "type": "Queue",
+                            "description": "Road travel requests for road travel agent"
+                        },
+                        "road.refine": {
+                            "type": "Queue",
+                            "description": "Refinement requests for road travel agent"
+                        },
+                        "accommodations": {
+                            "type": "Queue",
+                            "description": "Accommodation search requests for accommodation agent"
+                        },
+                        "accommodation.refine": {
+                            "type": "Queue",
+                            "description": "Refinement requests for accommodation agent"
+                        },
+                        "rental.cars": {
+                            "type": "Queue",
+                            "description": "Rental car requests for rental car agent"
+                        },
+                        "rentalcar.refine": {
+                            "type": "Queue",
+                            "description": "Refinement requests for rental car agent"
+                        },
+                        "travel.events": {
+                            "type": "Stream",
+                            "description": "Ordered sequence of travel planning lifecycle events",
+                            "stream": {
+                                "partitionCount": 4,
+                                "retentionPeriodSeconds": 604800
+                            }
+                        },
+                        "travel.notifications": {
+                            "type": "Topic",
+                            "description": "Travel-related notification events"
+                        }
+                    },
+                    "roles": {
+                        "TravelPlannerService": {
+                            "description": "Central travel planning coordinator that orchestrates expert agents",
+                            "consumers": {
+                                "travel.requests": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelRequests"
+                                    ]
+                                },
+                                "travel.proposals": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelProposals"
+                                    ]
+                                }
+                            },
+                            "producers": {
+                                "air.travel": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.AirTravel"
+                                    ]
+                                },
+                                "train.travel": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TrainTravel"
+                                    ]
+                                },
+                                "road.travel": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.RoadTravel"
+                                    ]
+                                },
+                                "accommodations": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Accommodations"
+                                    ]
+                                },
+                                "rental.cars": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.RentalCars"
+                                    ]
+                                },
+                                "air.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                },
+                                "train.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                },
+                                "road.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                },
+                                "accommodation.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                },
+                                "rentalcar.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                },
+                                "travel.events": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelEvents"
+                                    ]
+                                },
+                                "travel.notifications": {
+                                    "expiryPolicy": "SessionEnd",
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelNotifications"
+                                    ]
+                                }
+                            }
+                        },
+                        "AirTravelAgent": {
+                            "description": "Expert agent specializing in flight searches and airline coordination",
+                            "consumers": {
+                                "air.travel": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.AirTravel"
+                                    ]
+                                },
+                                "air.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                }
+                            },
+                            "producers": {
+                                "travel.proposals": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelProposals"
+                                    ]
+                                },
+                                "travel.events": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelEvents"
+                                    ]
+                                }
+                            }
+                        },
+                        "TrainTravelAgent": {
+                            "description": "Expert agent specializing in rail travel options and schedules",
+                            "consumers": {
+                                "train.travel": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TrainTravel"
+                                    ]
+                                },
+                                "train.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                }
+                            },
+                            "producers": {
+                                "travel.proposals": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelProposals"
+                                    ]
+                                },
+                                "travel.events": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelEvents"
+                                    ]
+                                }
+                            }
+                        },
+                        "RoadTravelAgent": {
+                            "description": "Expert agent specializing in bus routes and road travel options",
+                            "consumers": {
+                                "road.travel": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.RoadTravel"
+                                    ]
+                                },
+                                "road.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                }
+                            },
+                            "producers": {
+                                "travel.proposals": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelProposals"
+                                    ]
+                                },
+                                "travel.events": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelEvents"
+                                    ]
+                                }
+                            }
+                        },
+                        "AccommodationAgent": {
+                            "description": "Expert agent specializing in hotels, vacation rentals, and lodging",
+                            "consumers": {
+                                "accommodations": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Accommodations"
+                                    ]
+                                },
+                                "accommodation.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                }
+                            },
+                            "producers": {
+                                "travel.proposals": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelProposals"
+                                    ]
+                                },
+                                "travel.events": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelEvents"
+                                    ]
+                                }
+                            }
+                        },
+                        "RentalCarAgent": {
+                            "description": "Expert agent specializing in vehicle rentals and local transportation",
+                            "consumers": {
+                                "rental.cars": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.RentalCars"
+                                    ]
+                                },
+                                "rentalcar.refine": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.Refinement"
+                                    ]
+                                }
+                            },
+                            "producers": {
+                                "travel.proposals": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelProposals"
+                                    ]
+                                },
+                                "travel.events": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelEvents"
+                                    ]
+                                }
+                            }
+                        },
+                        "TravelAnalyticsService": {
+                            "description": "Analytics service that processes travel events for business intelligence",
+                            "consumers": {
+                                "travel.events": {
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelEvents"
+                                    ]
+                                }
+                            }
+                        },
+                        "NotificationService": {
+                            "description": "Service responsible for sending travel-related notifications to customers",
+                            "consumers": {
+                                "travel.notifications": {
+                                    "expiryPolicy": "SessionEnd",
+                                    "subscriptionName": "travel-notifications",
+                                    "filterExpression": "type = 'email' OR type = 'sms' OR type = 'push'",
+                                    "messagegroups": [
+                                        "/messagegroups/com.contoso.travel.TravelNotifications"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "links": [
+                        {
+                            "source": "travel.proposals",
+                            "target": "travel.events",
+                            "description": "Log all proposals to travel event stream",
+                            "isEnabled": true,
+                            "transformationScript": "{ type: 'proposal-received', tripId: message.TripId, agentType: message.AgentType, timestamp: Date.now() }"
+                        },
+                        {
+                            "source": "travel.requests",
+                            "target": "travel.notifications",
+                            "description": "Send confirmation notification when travel request is received",
+                            "isEnabled": true,
+                            "filterExpression": "TripId != null",
+                            "transformationScript": "{ type: 'request-confirmation', tripId: message.TripId, customerEmail: message.CustomerEmail }"
+                        }
+                    ],
+                    "environments": {
+                        "development": {
+                            "description": "Local development environment for travel planning system",
+                            "connection": {
+                                "connectionString": "amqp://guest:guest@localhost:5672/travel-dev",
+                                "useTls": false,
+                                "timeoutSeconds": 30,
+                                "retryPolicy": {
+                                    "maxRetries": 3,
+                                    "initialDelaySeconds": 1,
+                                    "maxDelaySeconds": 10,
+                                    "backoffMultiplier": 2.0
+                                }
+                            },
+                            "entityBindings": {
+                                "travel.requests": {
+                                    "producer": "/endpoints/Travel.Planning.TravelRequestsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelRequestsConsumer",
+                                    "deployedName": "dev.travel.requests.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg",
+                                    "tags": {
+                                        "environment": "development",
+                                        "team": "travel-platform",
+                                        "costCenter": "engineering"
+                                    }
+                                },
+                                "travel.proposals": {
+                                    "producer": "/endpoints/Travel.Planning.TravelProposalsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelProposalsConsumer",
+                                    "deployedName": "dev.travel.proposals.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "air.travel": {
+                                    "producer": "/endpoints/Travel.Planning.AirTravelProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AirTravelConsumer",
+                                    "deployedName": "dev.air.travel.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "air.refine": {
+                                    "producer": "/endpoints/Travel.Planning.AirRefinementProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AirRefinementConsumer",
+                                    "deployedName": "dev.air.refine.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "train.travel": {
+                                    "producer": "/endpoints/Travel.Planning.TrainTravelProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TrainTravelConsumer",
+                                    "deployedName": "dev.train.travel.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "train.refine": {
+                                    "producer": "/endpoints/Travel.Planning.TrainRefinementProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TrainRefinementConsumer",
+                                    "deployedName": "dev.train.refine.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "road.travel": {
+                                    "producer": "/endpoints/Travel.Planning.RoadTravelProducer",
+                                    "deployedName": "dev.road.travel.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "road.refine": {
+                                    "producer": "/endpoints/Travel.Planning.RoadRefinementProducer",
+                                    "deployedName": "dev.road.refine.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "accommodations": {
+                                    "producer": "/endpoints/Travel.Planning.AccommodationsProducer",
+                                    "deployedName": "dev.accommodations.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "accommodation.refine": {
+                                    "producer": "/endpoints/Travel.Planning.AccommodationRefinementProducer",
+                                    "deployedName": "dev.accommodation.refine.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "rental.cars": {
+                                    "producer": "/endpoints/Travel.Planning.RentalCarsProducer",
+                                    "deployedName": "dev.rental.cars.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "rentalcar.refine": {
+                                    "producer": "/endpoints/Travel.Planning.RentalCarRefinementProducer",
+                                    "deployedName": "dev.rentalcar.refine.queue",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                },
+                                "travel.events": {
+                                    "producer": "/endpoints/Travel.Planning.TravelEventsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelEventsConsumer",
+                                    "deployedName": "dev.travel.events.stream",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg",
+                                    "partitionMapping": [
+                                        0,
+                                        1,
+                                        2,
+                                        3
+                                    ]
+                                },
+                                "travel.notifications": {
+                                    "producer": "/endpoints/Travel.Planning.TravelNotificationsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelNotificationsConsumer",
+                                    "deployedName": "dev.travel.notifications.topic",
+                                    "namespace": "travel-dev",
+                                    "resourceGroup": "travel-messaging-dev-rg"
+                                }
+                            }
+                        },
+                        "staging": {
+                            "description": "Staging environment with realistic production-like travel setup",
+                            "connection": {
+                                "connectionString": "amqps://staging-user:${TRAVEL_STAGING_PASSWORD}@travel-messaging-staging.company.com:5671/travel-staging",
+                                "useTls": true,
+                                "timeoutSeconds": 30,
+                                "retryPolicy": {
+                                    "maxRetries": 5,
+                                    "initialDelaySeconds": 2,
+                                    "maxDelaySeconds": 30,
+                                    "backoffMultiplier": 2.0
+                                }
+                            },
+                            "entityBindings": {
+                                "travel.requests": {
+                                    "producer": "/endpoints/Travel.Planning.TravelRequestsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelRequestsConsumer",
+                                    "deployedName": "staging.travel.requests.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard",
+                                    "tags": {
+                                        "environment": "staging",
+                                        "team": "travel-platform",
+                                        "costCenter": "product"
+                                    }
+                                },
+                                "travel.proposals": {
+                                    "producer": "/endpoints/Travel.Planning.TravelProposalsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelProposalsConsumer",
+                                    "deployedName": "staging.travel.proposals.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "air.travel": {
+                                    "producer": "/endpoints/Travel.Planning.AirTravelProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AirTravelConsumer",
+                                    "deployedName": "staging.air.travel.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "air.refine": {
+                                    "producer": "/endpoints/Travel.Planning.AirRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AirRefineConsumer",
+                                    "deployedName": "staging.air.refine.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "train.travel": {
+                                    "producer": "/endpoints/Travel.Planning.TrainTravelProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TrainTravelConsumer",
+                                    "deployedName": "staging.train.travel.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "train.refine": {
+                                    "producer": "/endpoints/Travel.Planning.TrainRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TrainRefineConsumer",
+                                    "deployedName": "staging.train.refine.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "road.travel": {
+                                    "producer": "/endpoints/Travel.Planning.RoadTravelProducer",
+                                    "consumer": "/endpoints/Travel.Planning.RoadTravelConsumer",
+                                    "deployedName": "staging.road.travel.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "road.refine": {
+                                    "producer": "/endpoints/Travel.Planning.RoadRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.RoadRefineConsumer",
+                                    "deployedName": "staging.road.refine.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "accommodations": {
+                                    "producer": "/endpoints/Travel.Planning.AccommodationsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AccommodationsConsumer",
+                                    "deployedName": "staging.accommodations.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "accommodation.refine": {
+                                    "producer": "/endpoints/Travel.Planning.AccommodationRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AccommodationRefineConsumer",
+                                    "deployedName": "staging.accommodation.refine.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "rental.cars": {
+                                    "producer": "/endpoints/Travel.Planning.RentalCarsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.RentalCarsConsumer",
+                                    "deployedName": "staging.rental.cars.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "rentalcar.refine": {
+                                    "producer": "/endpoints/Travel.Planning.RentalCarRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.RentalCarRefineConsumer",
+                                    "deployedName": "staging.rentalcar.refine.queue",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "travel.events": {
+                                    "producer": "/endpoints/Travel.Planning.TravelEventsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelEventsConsumer",
+                                    "deployedName": "staging.travel.events.stream",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                },
+                                "travel.notifications": {
+                                    "producer": "/endpoints/Travel.Planning.TravelNotificationsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelNotificationsConsumer",
+                                    "deployedName": "staging.travel.notifications.topic",
+                                    "namespace": "travel-staging",
+                                    "resourceGroup": "travel-messaging-staging-rg",
+                                    "region": "westus2",
+                                    "sku": "Standard"
+                                }
+                            }
+                        },
+                        "production": {
+                            "description": "Production environment with high availability and geographic distribution for travel platform",
+                            "connection": {
+                                "connectionString": "amqps://prod-user:${TRAVEL_PROD_PASSWORD}@travel-messaging.company.com:5671/travel-prod",
+                                "useTls": true,
+                                "timeoutSeconds": 60,
+                                "retryPolicy": {
+                                    "maxRetries": 10,
+                                    "initialDelaySeconds": 1,
+                                    "maxDelaySeconds": 60,
+                                    "backoffMultiplier": 1.5
+                                }
+                            },
+                            "entityBindings": {
+                                "travel.requests": {
+                                    "producer": "/endpoints/Travel.Planning.TravelRequestsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelRequestsConsumer",
+                                    "deployedName": "prod.travel.requests.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium",
+                                    "highAvailability": {
+                                        "replicaRegions": [
+                                            "westus2",
+                                            "centralus"
+                                        ],
+                                        "failoverPolicy": "automatic",
+                                        "replicationMode": "sync"
+                                    },
+                                    "tags": {
+                                        "environment": "production",
+                                        "team": "travel-platform",
+                                        "costCenter": "product",
+                                        "criticality": "high"
+                                    }
+                                },
+                                "travel.proposals": {
+                                    "producer": "/endpoints/Travel.Planning.TravelProposalsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelProposalsConsumer",
+                                    "deployedName": "prod.travel.proposals.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium",
+                                    "highAvailability": {
+                                        "replicaRegions": [
+                                            "westus2"
+                                        ],
+                                        "failoverPolicy": "automatic"
+                                    }
+                                },
+                                "air.travel": {
+                                    "producer": "/endpoints/Travel.Planning.AirTravelProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AirTravelConsumer",
+                                    "deployedName": "prod.air.travel.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium",
+                                    "highAvailability": {
+                                        "replicaRegions": [
+                                            "westus2"
+                                        ],
+                                        "failoverPolicy": "automatic"
+                                    }
+                                },
+                                "air.refine": {
+                                    "producer": "/endpoints/Travel.Planning.AirRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AirRefineConsumer",
+                                    "deployedName": "prod.air.refine.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium"
+                                },
+                                "train.travel": {
+                                    "producer": "/endpoints/Travel.Planning.TrainTravelProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TrainTravelConsumer",
+                                    "deployedName": "prod.train.travel.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium"
+                                },
+                                "train.refine": {
+                                    "producer": "/endpoints/Travel.Planning.TrainRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TrainRefineConsumer",
+                                    "deployedName": "prod.train.refine.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium"
+                                },
+                                "road.travel": {
+                                    "producer": "/endpoints/Travel.Planning.RoadTravelProducer",
+                                    "consumer": "/endpoints/Travel.Planning.RoadTravelConsumer",
+                                    "deployedName": "prod.road.travel.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium"
+                                },
+                                "road.refine": {
+                                    "producer": "/endpoints/Travel.Planning.RoadRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.RoadRefineConsumer",
+                                    "deployedName": "prod.road.refine.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium"
+                                },
+                                "accommodations": {
+                                    "producer": "/endpoints/Travel.Planning.AccommodationsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AccommodationsConsumer",
+                                    "deployedName": "prod.accommodations.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium"
+                                },
+                                "accommodation.refine": {
+                                    "producer": "/endpoints/Travel.Planning.AccommodationRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.AccommodationRefineConsumer",
+                                    "deployedName": "prod.accommodation.refine.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium"
+                                },
+                                "rental.cars": {
+                                    "producer": "/endpoints/Travel.Planning.RentalCarsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.RentalCarsConsumer",
+                                    "deployedName": "prod.rental.cars.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium"
+                                },
+                                "rentalcar.refine": {
+                                    "producer": "/endpoints/Travel.Planning.RentalCarRefineProducer",
+                                    "consumer": "/endpoints/Travel.Planning.RentalCarRefineConsumer",
+                                    "deployedName": "prod.rentalcar.refine.queue.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium"
+                                },
+                                "travel.events": {
+                                    "producer": "/endpoints/Travel.Planning.TravelEventsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelEventsConsumer",
+                                    "deployedName": "prod.travel.events.stream.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium",
+                                    "partitionMapping": [
+                                        0,
+                                        1,
+                                        2,
+                                        3
+                                    ],
+                                    "highAvailability": {
+                                        "replicaRegions": [
+                                            "westus2"
+                                        ],
+                                        "replicationMode": "async",
+                                        "retentionPolicy": "7days"
+                                    }
+                                },
+                                "travel.notifications": {
+                                    "producer": "/endpoints/Travel.Planning.TravelNotificationsProducer",
+                                    "consumer": "/endpoints/Travel.Planning.TravelNotificationsConsumer",
+                                    "deployedName": "prod.travel.notifications.topic.primary",
+                                    "namespace": "travel-prod-primary",
+                                    "resourceGroup": "travel-messaging-prod-primary-rg",
+                                    "region": "eastus2",
+                                    "sku": "Premium",
+                                    "highAvailability": {
+                                        "replicaRegions": [
+                                            "westus2"
+                                        ],
+                                        "failoverPolicy": "automatic"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "endpoints": {
+        "Travel.Planning.TravelRequestsProducer": {
+            "description": "AMQP producer endpoint for travel planning requests",
+            "channel": "travel.requests",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/travel-requests"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue",
+                "expiryPolicy": "Never"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TravelRequests"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.TravelRequestsConsumer": {
+            "description": "AMQP consumer endpoint for travel planning requests",
+            "channel": "travel.requests",
+            "usage": "consumer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/travel-requests"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TravelRequests"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.TravelProposalsProducer": {
+            "description": "AMQP producer endpoint for travel proposals from expert agents",
+            "channel": "travel.proposals",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/travel-proposals"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue",
+                "expiryPolicy": "Never"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TravelProposals"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.TravelProposalsConsumer": {
+            "description": "AMQP consumer endpoint for travel proposals",
+            "channel": "travel.proposals",
+            "usage": "consumer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/travel-proposals"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TravelProposals"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.AirTravelProducer": {
+            "description": "AMQP producer endpoint for air travel agent requests",
+            "channel": "air.travel",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/air-travel"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue",
+                "expiryPolicy": "Never"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.AirTravel"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.AirTravelConsumer": {
+            "description": "AMQP consumer endpoint for air travel agent requests",
+            "channel": "air.travel",
+            "usage": "consumer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/air-travel"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.AirTravel"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.TrainTravelProducer": {
+            "description": "AMQP producer endpoint for train travel agent requests",
+            "channel": "train.travel",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/train-travel"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue",
+                "expiryPolicy": "Never"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TrainTravel"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.TrainTravelConsumer": {
+            "description": "AMQP consumer endpoint for train travel agent requests",
+            "channel": "train.travel",
+            "usage": "consumer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/train-travel"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TrainTravel"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.RoadTravelProducer": {
+            "description": "AMQP producer endpoint for road travel agent requests",
+            "channel": "road.travel",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/road-travel"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue",
+                "expiryPolicy": "Never"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.RoadTravel"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.RoadTravelConsumer": {
+            "description": "AMQP consumer endpoint for road travel agent requests",
+            "channel": "road.travel",
+            "usage": "consumer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/road-travel"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.RoadTravel"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.AccommodationsProducer": {
+            "description": "AMQP producer endpoint for accommodation agent requests",
+            "channel": "accommodations",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/accommodations"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue",
+                "expiryPolicy": "Never"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.Accommodations"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.AccommodationsConsumer": {
+            "description": "AMQP consumer endpoint for accommodation agent requests",
+            "channel": "accommodations",
+            "usage": "consumer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/accommodations"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.Accommodations"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.RentalCarsProducer": {
+            "description": "AMQP producer endpoint for rental car agent requests",
+            "channel": "rental.cars",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/rental-cars"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue",
+                "expiryPolicy": "Never"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.RentalCars"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.RentalCarsConsumer": {
+            "description": "AMQP consumer endpoint for rental car agent requests",
+            "channel": "rental.cars",
+            "usage": "consumer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/rental-cars"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.RentalCars"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.RefinementProducer": {
+            "description": "AMQP producer endpoint for refinement requests to agents",
+            "channel": "refinement.requests",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/refinement"
+                }
+            ],
+            "protocoloptions": {
+                "node": "queue"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.Refinement"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.TravelEventsProducer": {
+            "description": "AMQP producer endpoint for travel lifecycle events",
+            "channel": "travel.events",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/travel-events"
+                }
+            ],
+            "protocoloptions": {
+                "node": "stream"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TravelEvents"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.TravelEventsConsumer": {
+            "description": "AMQP consumer endpoint for travel lifecycle events",
+            "channel": "travel.events",
+            "usage": "consumer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/travel-events"
+                }
+            ],
+            "protocoloptions": {
+                "node": "stream"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TravelEvents"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.NotificationsProducer": {
+            "description": "AMQP producer endpoint for travel notifications",
+            "channel": "travel.notifications",
+            "usage": "producer",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/travel-notifications"
+                }
+            ],
+            "protocoloptions": {
+                "node": "topic",
+                "expiryPolicy": "SessionEnd"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TravelNotifications"
+            ],
+            "envelope": "CloudEvents/1.0"
+        },
+        "Travel.Planning.NotificationsSubscriber": {
+            "description": "AMQP subscriber endpoint for travel notifications",
+            "channel": "travel.notifications",
+            "usage": "subscriber",
+            "protocol": "AMQP/1.0",
+            "deployed": false,
+            "endpoints": [
+                {
+                    "uri": "amqps://travel-messaging.company.com:5671/travel-notifications"
+                }
+            ],
+            "protocoloptions": {
+                "node": "topic",
+                "subscriptionName": "travel-notifications",
+                "filterExpression": "type = 'email' OR type = 'sms' OR type = 'push'"
+            },
+            "messagegroups": [
+                "/messagegroups/com.contoso.travel.TravelNotifications"
+            ],
+            "envelope": "CloudEvents/1.0"
+        }
+    },
+    "messagegroups": {
+        "com.contoso.travel.TravelRequests": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for travel planning requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.TravelRequest": {
+                    "description": "Initial travel planning request from customer",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.TravelRequest",
+                            "description": "Travel request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "event issuer",
+                            "value": "{roleType}/{roleInstance}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "job id",
+                            "value": "{jobId}"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.TravelRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.TravelProposals": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for travel proposals (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.TravelProposal": {
+                    "description": "Travel option proposal from expert agents",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this proposal"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.TravelProposal",
+                            "description": "Travel proposal event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source agent that created the proposal",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Proposal timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.TravelProposalData"
+                }
+            }
+        },
+        "com.contoso.travel.AirTravel": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for air travel requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.FlightSearchRequest": {
+                    "description": "Air travel search request",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.FlightSearchRequest",
+                            "description": "Flight search request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting flight search",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.AirTravelRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.TrainTravel": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for train travel requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.TrainSearchRequest": {
+                    "description": "Train travel search request",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.TrainSearchRequest",
+                            "description": "Train search request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting train search",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.TrainTravelRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.RoadTravel": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for road travel requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.RoadTravelRequest": {
+                    "description": "Road travel search request",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.RoadTravelRequest",
+                            "description": "Road travel request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting road travel search",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.RoadTravelRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.Accommodations": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for accommodation requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.AccommodationRequest": {
+                    "description": "Accommodation search request",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.AccommodationRequest",
+                            "description": "Accommodation request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting accommodation search",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.AccommodationRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.RentalCars": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for rental car requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.RentalCarRequest": {
+                    "description": "Rental car search request",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.RentalCarRequest",
+                            "description": "Rental car request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting rental car search",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.RentalCarRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.AirRefinement": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for air travel refinement requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.RefinementRequest": {
+                    "description": "Request for proposal refinement based on feedback",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this refinement request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.RefinementRequest",
+                            "description": "Refinement request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting refinement",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Refinement request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.RefinementRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.TrainRefinement": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for train travel refinement requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.RefinementRequest": {
+                    "description": "Request for proposal refinement based on feedback",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this refinement request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.RefinementRequest",
+                            "description": "Refinement request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting refinement",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Refinement request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.RefinementRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.RoadRefinement": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for road travel refinement requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.RefinementRequest": {
+                    "description": "Request for proposal refinement based on feedback",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this refinement request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.RefinementRequest",
+                            "description": "Refinement request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting refinement",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Refinement request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.RefinementRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.AccommodationRefinement": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for accommodation refinement requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.RefinementRequest": {
+                    "description": "Request for proposal refinement based on feedback",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this refinement request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.RefinementRequest",
+                            "description": "Refinement request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting refinement",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Refinement request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.RefinementRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.RentalCarRefinement": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for rental car refinement requests (both producer and consumer)",
+            "messages": {
+                "com.contoso.travel.RefinementRequest": {
+                    "description": "Request for proposal refinement based on feedback",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this refinement request"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.RefinementRequest",
+                            "description": "Refinement request event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service requesting refinement",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Refinement request timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.RefinementRequestData"
+                }
+            }
+        },
+        "com.contoso.travel.TravelEvents": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for travel lifecycle events",
+            "messages": {
+                "com.contoso.travel.TravelEvent": {
+                    "description": "Travel planning lifecycle event for analytics and monitoring",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this event"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.TravelEvent",
+                            "description": "Travel lifecycle event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service generating the event",
+                            "value": "/travel/agents/{agenttype}/{agentid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Event timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.TravelEventData"
+                }
+            }
+        },
+        "com.contoso.travel.TravelNotifications": {
+            "envelope": "CloudEvents/1.0",
+            "description": "Interface for travel notifications",
+            "messages": {
+                "com.contoso.travel.TravelNotification": {
+                    "description": "Travel-related notification message for customer communication",
+                    "envelope": "CloudEvents/1.0",
+                    "envelopemetadata": {
+                        "id": {
+                            "required": true,
+                            "description": "Unique identifier for this notification"
+                        },
+                        "type": {
+                            "value": "com.contoso.travel.TravelNotification",
+                            "description": "Travel notification event type"
+                        },
+                        "source": {
+                            "type": "uritemplate",
+                            "description": "Source service generating the notification",
+                            "value": "/travel/services/{servicetype}/{serviceid}"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Customer or trip identifier"
+                        },
+                        "time": {
+                            "required": true,
+                            "description": "Notification timestamp"
+                        },
+                        "datacontenttype": {
+                            "value": "application/json"
+                        }
+                    },
+                    "dataschemaformat": "JSONSchema/Draft-07",
+                    "dataschemauri": "/schemagroups/Travel.Planning/schemas/Travel.Planning.TravelNotificationData"
+                }
+            }
+        }
+    },
+    "schemagroups": {
+        "Travel.Planning": {
+            "schemas": {
+                "Travel.Planning.TravelRequestData": {
+                    "format": "JSONSchema/Draft-07",
+                    "versions": {
+                        "1": {
+                            "format": "JSONSchema/Draft-07",
+                            "schema": {
+                                "$schema": "http://json-schema.org/draft-07/schema#",
+                                "title": "TravelRequestData",
+                                "description": "Data schema for travel planning request",
+                                "type": "object",
+                                "properties": {
+                                    "tripId": {
+                                        "type": "string",
+                                        "description": "Unique identifier for the trip"
+                                    },
+                                    "customerId": {
+                                        "type": "string",
+                                        "description": "Customer identifier"
+                                    },
+                                    "origin": {
+                                        "type": "string",
+                                        "description": "Departure location"
+                                    },
+                                    "destination": {
+                                        "type": "string",
+                                        "description": "Arrival destination"
+                                    },
+                                    "dates": {
+                                        "type": "object",
+                                        "properties": {
+                                            "start": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "description": "Trip start date and time"
+                                            },
+                                            "end": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "description": "Trip end date and time"
+                                            }
+                                        },
+                                        "required": [
+                                            "start",
+                                            "end"
+                                        ]
+                                    },
+                                    "preferences": {
+                                        "type": "object",
+                                        "properties": {
+                                            "preferredModes": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "description": "Preferred travel modes (air, train, road)"
+                                            },
+                                            "accommodationType": {
+                                                "type": "string",
+                                                "description": "Preferred accommodation type"
+                                            },
+                                            "flexibleDates": {
+                                                "type": "boolean",
+                                                "description": "Whether dates can be adjusted"
+                                            }
+                                        }
+                                    },
+                                    "budget": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "description": "Maximum budget in USD"
+                                    },
+                                    "customerEmail": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "description": "Customer email for notifications"
+                                    }
+                                },
+                                "required": [
+                                    "tripId",
+                                    "customerId",
+                                    "origin",
+                                    "destination",
+                                    "dates",
+                                    "budget"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "Travel.Planning.TravelProposalData": {
+                    "format": "JSONSchema/Draft-07",
+                    "versions": {
+                        "1": {
+                            "format": "JSONSchema/Draft-07",
+                            "schema": {
+                                "$schema": "http://json-schema.org/draft-07/schema#",
+                                "title": "TravelProposalData",
+                                "description": "Data schema for travel proposal from expert agents",
+                                "type": "object",
+                                "properties": {
+                                    "tripId": {
+                                        "type": "string",
+                                        "description": "Reference to the original trip request"
+                                    },
+                                    "agentType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Air",
+                                            "Train",
+                                            "Road",
+                                            "Accommodation",
+                                            "RentalCar"
+                                        ],
+                                        "description": "Type of expert agent providing the proposal"
+                                    },
+                                    "agentId": {
+                                        "type": "string",
+                                        "description": "Unique identifier of the agent instance"
+                                    },
+                                    "options": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "description": "Option name or title"
+                                                },
+                                                "price": {
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "description": "Price in USD"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "description": "Detailed description of the option"
+                                                },
+                                                "provider": {
+                                                    "type": "string",
+                                                    "description": "Service provider name"
+                                                }
+                                            },
+                                            "required": [
+                                                "name",
+                                                "price",
+                                                "description"
+                                            ]
+                                        },
+                                        "minItems": 1,
+                                        "description": "Available travel options"
+                                    },
+                                    "estimatedCost": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "description": "Best estimated cost from the options"
+                                    },
+                                    "confidence": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "maximum": 1,
+                                        "description": "Agent confidence level in the proposal (0.0-1.0)"
+                                    }
+                                },
+                                "required": [
+                                    "tripId",
+                                    "agentType",
+                                    "agentId",
+                                    "options",
+                                    "estimatedCost",
+                                    "confidence"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "Travel.Planning.RefinementRequestData": {
+                    "format": "JSONSchema/Draft-07",
+                    "versions": {
+                        "1": {
+                            "format": "JSONSchema/Draft-07",
+                            "schema": {
+                                "$schema": "http://json-schema.org/draft-07/schema#",
+                                "title": "RefinementRequestData",
+                                "description": "Data schema for proposal refinement request",
+                                "type": "object",
+                                "properties": {
+                                    "tripId": {
+                                        "type": "string",
+                                        "description": "Reference to the original trip request"
+                                    },
+                                    "targetAgentType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Air",
+                                            "Train",
+                                            "Road",
+                                            "Accommodation",
+                                            "RentalCar"
+                                        ],
+                                        "description": "Target agent type for refinement"
+                                    },
+                                    "originalProposalId": {
+                                        "type": "string",
+                                        "description": "Reference to the original proposal being refined"
+                                    },
+                                    "feedbackType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "budget",
+                                            "preferences",
+                                            "timing",
+                                            "quality",
+                                            "availability"
+                                        ],
+                                        "description": "Category of feedback being provided"
+                                    },
+                                    "feedback": {
+                                        "type": "string",
+                                        "description": "Detailed feedback text for refinement"
+                                    },
+                                    "priority": {
+                                        "type": "string",
+                                        "enum": [
+                                            "low",
+                                            "medium",
+                                            "high",
+                                            "urgent"
+                                        ],
+                                        "default": "medium",
+                                        "description": "Priority level for processing this refinement"
+                                    },
+                                    "requestedBy": {
+                                        "type": "string",
+                                        "description": "Identifier of the requesting service"
+                                    }
+                                },
+                                "required": [
+                                    "tripId",
+                                    "targetAgentType",
+                                    "feedbackType",
+                                    "feedback",
+                                    "requestedBy"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "Travel.Planning.TravelEventData": {
+                    "format": "JSONSchema/Draft-07",
+                    "versions": {
+                        "1": {
+                            "format": "JSONSchema/Draft-07",
+                            "schema": {
+                                "$schema": "http://json-schema.org/draft-07/schema#",
+                                "title": "TravelEventData",
+                                "description": "Data schema for travel planning lifecycle events",
+                                "type": "object",
+                                "properties": {
+                                    "tripId": {
+                                        "type": "string",
+                                        "description": "Trip identifier"
+                                    },
+                                    "eventType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "request-received",
+                                            "proposal-received",
+                                            "refinement-sent",
+                                            "plan-completed"
+                                        ],
+                                        "description": "Type of travel lifecycle event"
+                                    },
+                                    "agentType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "TravelPlanner",
+                                            "Air",
+                                            "Train",
+                                            "Road",
+                                            "Accommodation",
+                                            "RentalCar"
+                                        ],
+                                        "description": "Agent that generated the event"
+                                    },
+                                    "agentId": {
+                                        "type": "string",
+                                        "description": "Unique identifier of the agent instance"
+                                    },
+                                    "eventData": {
+                                        "type": "object",
+                                        "description": "Event-specific data payload"
+                                    },
+                                    "correlationId": {
+                                        "type": "string",
+                                        "description": "Correlation ID for tracing"
+                                    },
+                                    "parentEventId": {
+                                        "type": "string",
+                                        "description": "Reference to parent event in the workflow"
+                                    }
+                                },
+                                "required": [
+                                    "tripId",
+                                    "eventType",
+                                    "agentType"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "Travel.Planning.TravelNotificationData": {
+                    "format": "JSONSchema/Draft-07",
+                    "versions": {
+                        "1": {
+                            "format": "JSONSchema/Draft-07",
+                            "schema": {
+                                "$schema": "http://json-schema.org/draft-07/schema#",
+                                "title": "TravelNotificationData",
+                                "description": "Data schema for travel notification messages",
+                                "type": "object",
+                                "properties": {
+                                    "tripId": {
+                                        "type": "string",
+                                        "description": "Related trip identifier"
+                                    },
+                                    "customerId": {
+                                        "type": "string",
+                                        "description": "Target customer identifier"
+                                    },
+                                    "customerEmail": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "description": "Customer email address"
+                                    },
+                                    "notificationType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "email",
+                                            "sms",
+                                            "push"
+                                        ],
+                                        "description": "Type of notification delivery method"
+                                    },
+                                    "messageType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "request-confirmation",
+                                            "proposal-ready",
+                                            "plan-completed",
+                                            "reminder"
+                                        ],
+                                        "description": "Type of message content"
+                                    },
+                                    "subject": {
+                                        "type": "string",
+                                        "description": "Notification subject line"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "description": "Notification content body"
+                                    },
+                                    "priority": {
+                                        "type": "string",
+                                        "enum": [
+                                            "low",
+                                            "normal",
+                                            "high"
+                                        ],
+                                        "default": "normal",
+                                        "description": "Delivery priority"
+                                    },
+                                    "templateId": {
+                                        "type": "string",
+                                        "description": "Reference to notification template"
+                                    }
+                                },
+                                "required": [
+                                    "tripId",
+                                    "customerId",
+                                    "customerEmail",
+                                    "notificationType",
+                                    "messageType",
+                                    "subject",
+                                    "content"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "patterns": {
+        "ProposalRefinement": {
+            "id": "ProposalRefinement",
+            "name": "ProposalRefinement",
+            "description": "Request → Propose → [Refine → Propose] *n pattern for iterative improvement",
+            "format": "application/json",
+            "labels": {
+                "category": "workflow",
+                "domain": "travel",
+                "complexity": "medium"
+            },
+            "phases": [
+                {
+                    "phase": "REQUEST",
+                    "description": "Initial request sent to expert agents",
+                    "entities": [
+                        "air.travel",
+                        "train.travel",
+                        "road.travel",
+                        "accommodations",
+                        "rental.cars"
+                    ],
+                    "messageTypes": [
+                        "com.contoso.travel.TravelRequest"
+                    ]
+                },
+                {
+                    "phase": "PROPOSE",
+                    "description": "Expert agents respond with initial proposals",
+                    "entities": [
+                        "travel.proposals"
+                    ],
+                    "messageTypes": [
+                        "com.contoso.travel.TravelProposal"
+                    ]
+                },
+                {
+                    "phase": "REFINE",
+                    "description": "Coordinator requests refinements based on analysis",
+                    "entities": [
+                        "air.refine",
+                        "train.refine",
+                        "road.refine",
+                        "accommodation.refine",
+                        "rentalcar.refine"
+                    ],
+                    "messageTypes": [
+                        "com.contoso.travel.RefinementRequest"
+                    ]
+                },
+                {
+                    "phase": "PROPOSE",
+                    "description": "Expert agents respond with refined proposals",
+                    "entities": [
+                        "travel.proposals"
+                    ],
+                    "messageTypes": [
+                        "com.contoso.travel.TravelProposal"
+                    ],
+                    "repeatable": true,
+                    "condition": "Can repeat REFINE → PROPOSE cycle multiple times"
+                }
+            ],
+            "versions": {
+                "1.0.0": {
+                    "id": "1.0.0",
+                    "description": "Initial version of ProposalRefinement pattern",
+                    "created": "2025-01-01T00:00:00Z",
+                    "modified": "2025-01-01T00:00:00Z"
+                }
+            }
+        }
+    }
+}
